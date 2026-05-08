@@ -1,34 +1,97 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "PlayerBase.h"
+#include "Components/InputComponent.h"
 
-// Sets default values
+
 APlayerBase::APlayerBase()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
-// Called when the game starts or when spawned
+
 void APlayerBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-// Called every frame
+
 void APlayerBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-// Called to bind functionality to input
+
+////////////////////////////
+// 작성자(홍한울)
+// 공통 입력 바인딩 설정
+// 파라미터 설명: PlayerInputComponent - 입력 컴포넌트
+// 반환값 설명: 없음
 void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	check(PlayerInputComponent);
+
+	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &APlayerBase::MoveForward);
+	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &APlayerBase::MoveRight);
+	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &APlayerBase::Turn);
+	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &APlayerBase::LookUp);
+
+	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &APlayerBase::StartJump);
+	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Released, this, &APlayerBase::StopJump);
+	PlayerInputComponent->BindAction(TEXT("UseSkill"), IE_Pressed, this, &APlayerBase::UseCharacterSkill);
+}
+
+
+
+void APlayerBase::MoveForward(float Value)
+{
+	if (Controller != nullptr && !FMath::IsNearlyZero(Value))
+	{
+		AddMovementInput(GetActorForwardVector(), Value);
+	}
+}
+
+
+void APlayerBase::MoveRight(float Value)
+{
+	if (Controller != nullptr && !FMath::IsNearlyZero(Value))
+	{
+		AddMovementInput(GetActorRightVector(), Value);
+	}
+}
+
+
+void APlayerBase::Turn(float Value)
+{
+	if (!FMath::IsNearlyZero(Value))
+	{
+		AddControllerYawInput(Value);
+	}
+}
+
+
+void APlayerBase::LookUp(float Value)
+{
+	if (!FMath::IsNearlyZero(Value))
+	{
+		AddControllerPitchInput(Value);
+	}
+}
+
+
+void APlayerBase::StartJump()
+{
+	Jump();
+}
+
+
+void APlayerBase::StopJump()
+{
+	StopJumping();
+}
+
+
+void APlayerBase::UseCharacterSkill()
+{
 }
 
